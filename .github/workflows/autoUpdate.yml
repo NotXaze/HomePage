@@ -1,4 +1,4 @@
-name: Mettre à jour image.png chaque jour (par jour du mois)
+name: Mettre à jour image.png chaque jour (images à la racine)
 
 on:
   schedule:
@@ -14,14 +14,14 @@ jobs:
 
       - name: Copier l'image du jour
         run: |
-          JOUR=$(date -u '+%d')  # Numéro du jour, ex: 01, 31
-          IMAGE="images/${JOUR}.png"
+          JOUR=$(date -u '+%-d')  # ex: 1, 2, ..., 31
+          IMAGE="${JOUR}.png"
           echo "Jour du mois : $JOUR"
           if [ -f "$IMAGE" ]; then
             cp "$IMAGE" image.png
           else
-            echo "Image $IMAGE introuvable, utilisation d'une image par défaut."
-            cp "images/default.png" image.png
+            echo "Image $IMAGE introuvable. Utilisation de default.png."
+            cp "default.png" image.png
           fi
 
       - name: Commit et push
@@ -29,5 +29,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add image.png
-          git commit -m "Mise à jour image.png pour le jour $JOUR" || echo "Pas de changements"
+          git commit -m "Mise à jour image.png pour le jour $JOUR" || echo "Pas de modifications"
           git push
