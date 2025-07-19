@@ -1,0 +1,33 @@
+name: Mettre à jour image.png chaque jour (par jour du mois)
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Tous les jours à minuit UTC
+  workflow_dispatch:
+
+jobs:
+  update-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Copier l'image du jour
+        run: |
+          JOUR=$(date -u '+%d')  # Numéro du jour, ex: 01, 31
+          IMAGE="images/${JOUR}.png"
+          echo "Jour du mois : $JOUR"
+          if [ -f "$IMAGE" ]; then
+            cp "$IMAGE" image.png
+          else
+            echo "Image $IMAGE introuvable, utilisation d'une image par défaut."
+            cp "images/default.png" image.png
+          fi
+
+      - name: Commit et push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add image.png
+          git commit -m "Mise à jour image.png pour le jour $JOUR" || echo "Pas de changements"
+          git push
